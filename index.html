@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>園區有限公司｜介面原型</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14161b; --panel:#1f232b; --line:#2e333d; --text:#e8e6e1; --dim:#8b909a;
+  --red:#e0483e; --yellow:#f2c14e; --green:#4fbf7a; --blue:#4a90d9;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000}
+body{font-family:"Noto Sans TC",sans-serif;color:var(--text);display:flex;justify-content:center}
+#app{width:100%;max-width:440px;height:100%;position:relative;overflow:hidden;background:var(--bg);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px)}
+.screen.on{display:flex;animation:fade .35s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.tag{font-size:11px;letter-spacing:2px;color:var(--dim)}
+.btn{display:block;width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);font:inherit;font-size:15px;text-align:left;margin-top:10px;cursor:pointer}
+.btn:active{transform:scale(.98);background:#2a2f39}
+.btn.main{background:var(--red);border-color:var(--red);text-align:center;font-weight:700}
+.btn small{display:block;color:var(--dim);font-size:12px;margin-top:2px}
+.ph{background:repeating-linear-gradient(45deg,#232832,#232832 10px,#1d2129 10px,#1d2129 20px);
+  border:1px dashed #3a404c;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  color:#5d6470;font-size:12px;text-align:center}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.spacer{flex:1}
+
+/* 標題 */
+#title{justify-content:center;text-align:center;background:radial-gradient(circle at 50% 30%,#3a1414,#14161b 70%)}
+#title h1{font-size:44px;font-weight:900;letter-spacing:4px;line-height:1.1}
+#title h1 span{color:var(--red)}
+#title p{color:var(--dim);margin:12px 0 40px;font-size:14px}
+#title .stamp{display:inline-block;border:2px solid var(--red);color:var(--red);padding:2px 10px;transform:rotate(-6deg);font-weight:900;margin-bottom:24px}
+
+/* 序章：手機求職畫面 */
+.phone{background:#f4f4f4;color:#222;border-radius:18px;padding:12px;margin:10px 0}
+.post{background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 3px #0002}
+.post .hd{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700}
+.post .av{width:32px;height:32px;border-radius:50%;background:#ffb74d}
+.post .big{font-size:20px;font-weight:900;color:#d32f2f;margin:8px 0 4px}
+.post ul{font-size:13px;padding-left:18px;line-height:1.7}
+.flag{font-size:11px;background:#fff3cd;color:#8a6d00;border-radius:6px;padding:4px 8px;margin-top:8px;display:none}
+.narr{font-size:15px;line-height:1.8;min-height:80px}
+
+/* 黑幕轉場 */
+#blackout{background:#000;justify-content:center;text-align:center}
+#other .line{opacity:0;font-size:16px;line-height:1.9;margin-bottom:10px;transition:opacity 1s}
+#other .line.show{opacity:1}
+#other .line.atm{font-family:monospace;font-size:18px;color:#7CFC9A;background:#0a2a14;border:1px solid #1f6b35;border-radius:8px;padding:10px;letter-spacing:1px}
+#blackout .line{opacity:0;font-size:18px;line-height:2;transition:opacity 1s}
+#blackout .line.show{opacity:1}
+
+/* 辦公室派任務 */
+.boss{display:flex;gap:12px;align-items:flex-end;margin:10px 0}
+.boss .ph{width:110px;height:150px;flex:none}
+.bossimg{width:120px;height:120px;object-fit:cover;object-position:50% 20%;border-radius:14px;flex:none;background:#fff}
+.hero{float:left;width:84px;height:84px;border-radius:12px;object-fit:cover;margin:0 12px 4px 0;background:#fff}
+.gimg{display:block;width:120px;height:120px;margin:6px auto 0;border-radius:50%;object-fit:cover;object-position:50% 20%;background:#fff;border:3px solid var(--yellow)}
+.bubble{background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:12px;font-size:15px;line-height:1.7}
+.bubble b{color:var(--yellow)}
+.mission{border-left:4px solid var(--yellow)}
+.mission h3{font-size:16px;margin:4px 0 8px}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.kv:last-child{border:0}
+.kv span:first-child{color:var(--dim)}
+
+/* 遊玩：HUD + 聊天 */
+.hud{margin-right:30px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hud div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:11px;color:var(--dim)}
+.hud b{display:block;font-size:16px;color:var(--text)}
+.victim{display:flex;gap:10px;align-items:center;margin:10px 0 6px}
+.victim .ph{width:48px;height:48px;border-radius:50%;flex:none;font-size:10px}
+.victim .nm{font-weight:700}
+.victim .sub{font-size:12px;color:var(--dim)}
+.meter{height:10px;background:#2a2f39;border-radius:6px;overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;width:20%;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:width .5s}
+.chat{flex:none;height:20vh;overflow-y:auto;background:#0f1115;border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:8px 12px;border-radius:14px;font-size:14px;line-height:1.6;animation:fade .3s}
+.msg.them{background:#2a2f39;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:var(--blue);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.sys{align-self:center;background:none;color:var(--dim);font-size:12px;text-align:center}
+.msg.warn{align-self:center;background:#3a2a10;color:var(--yellow);font-size:12px;border-radius:8px}
+.choices .btn{margin-top:8px;padding:12px 14px;font-size:14px}
+
+/* 小遊戲 */
+#mini{background:#0b0d10}
+.mini-top{text-align:center;padding:8px 0}
+.mini-top h2{font-size:26px;font-weight:900;color:var(--yellow);letter-spacing:2px}
+.quiz-q{font-size:17px;line-height:1.7;margin:16px 0;text-align:center}
+.timer{height:6px;background:#2a2f39;border-radius:4px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--yellow);width:100%}
+.diff{display:flex;justify-content:center;gap:4px;margin-top:6px;font-size:12px;color:var(--dim)}
+
+/* 結算 */
+.grade{font-size:84px;font-weight:900;text-align:center;line-height:1;color:var(--yellow);margin:8px 0}
+.grade-sub{text-align:center;color:var(--dim);font-size:13px}
+.result-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.result-row b.neg{color:var(--red)} .result-row b.pos{color:var(--green)}
+.lesson{background:#13261a;border:1px solid #275a37;border-radius:14px;padding:12px;margin-top:12px}
+.lesson h4{color:var(--green);font-size:14px;margin-bottom:6px}
+.lesson li{font-size:13px;line-height:1.7;margin-left:18px}
+.punish{background:#2b1414;border:1px solid #5a2626;border-radius:14px;padding:12px;margin-top:12px;font-size:14px;line-height:1.7}
+.punish b{color:var(--red)}
+
+.info{font-size:12px;color:var(--dim);background:#191c22;border:1px dashed var(--line);border-radius:10px;padding:6px 10px;margin-bottom:8px;line-height:1.6}
+.info b{color:var(--yellow);font-weight:400}
+.msg.typing{color:var(--dim);font-style:italic}
+.pop{position:absolute;right:20px;top:120px;font-weight:900;font-size:22px;animation:pop 1s forwards;pointer-events:none;z-index:5}
+@keyframes pop{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-40px)}}
+.lesson li.ok::marker{content:"✔ "}
+.roster{background:#efe6cf;color:#3b3325;border-radius:6px 6px 10px 10px;padding:6px 10px 4px;margin:8px 0;box-shadow:0 2px 0 #0004;position:relative}
+.roster:before{content:"";position:absolute;top:-6px;left:50%;width:46px;height:10px;margin-left:-23px;background:#9a8f7a;border-radius:3px}
+.rtitle{font-size:12px;margin-bottom:2px;font-weight:700;display:flex;justify-content:space-between;color:#6b5f48}
+#roster{max-height:74px;overflow-y:auto;font-size:12px;line-height:1.5}
+.rrow{display:flex;gap:6px;border-bottom:1px solid #d8ccb0;padding:2px 0;animation:fade .3s}
+.rrow .n{flex:none;white-space:nowrap;font-family:monospace;letter-spacing:-.3px}
+.rrow .st{color:#b03a2e;flex:1;min-width:0}
+.rrow.dead .n{text-decoration:line-through;text-decoration-color:#c0392b;text-decoration-thickness:2px;color:#8c8270}
+.rrow.live{background:#d9f0d8}.rrow.live .st{color:#2e7d32;font-weight:700}
+.nm{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.ctime{font-size:11px;color:var(--green);font-weight:400;white-space:nowrap}
+
+.choices .btn{border-left:4px solid var(--blue);opacity:0;animation:deal .3s forwards}
+.choices .btn:nth-child(2){animation-delay:.08s}.choices .btn:nth-child(3){animation-delay:.16s}
+.choices .btn.main{border-left:0}
+@keyframes deal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.role{font-size:12px;color:var(--blue);padding:0 0 8px;font-weight:700}.role.r2{color:#b07de0}
+.msg.me.r2{background:#7b4fc0}
+.sw{position:absolute;inset:0;background:#0b0d10f2;z-index:6;display:none;flex-direction:column;justify-content:center;padding:24px}
+.sw.on{display:flex;animation:fade .3s}.sw .tag{text-align:center;margin-bottom:12px}
+.card3{perspective:800px;height:130px}
+.cardi{position:relative;width:100%;height:100%;transition:transform .8s;transform-style:preserve-3d}
+.cardi.flip{transform:rotateY(180deg)}
+.cf,.cb{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;line-height:1.8;color:#fff}
+.cf b,.cb b{font-size:20px}.cf{background:var(--blue)}.cb{background:#7b4fc0;transform:rotateY(180deg)}
+.music{text-align:center;font-size:18px;color:var(--yellow);animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.4}}
+.sec{text-align:center;font-size:48px;font-weight:900;margin-top:10px}
+.stage{flex:1;min-height:200px;position:relative;border-radius:14px;overflow:hidden;background:#fff;margin-bottom:8px}
+.dialing{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#999;font-size:15px;animation:blink 1.2s infinite}
+#call{display:none;position:absolute;inset:0;background:#fff}#call.on{display:block;animation:fade .4s}
+.portrait{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:calc(100% - 38px);max-width:none;transition:transform .15s}
+.portrait.bump{transform:translateX(-50%) scale(1.04)}
+#call .info{position:absolute;top:0;left:0;right:0;background:#14161be0;color:#cfd2d8;font-size:11px;padding:6px 10px;border:0;border-radius:0;margin:0}
+.plate{position:absolute;left:8px;bottom:8px;background:#14161bee;color:#fff;border-radius:10px;padding:6px 10px;font-size:15px;max-width:58%}
+.plate .ctime{margin-left:8px}.plate .role{padding:2px 0 0;font-size:11px}
+.gauge{position:absolute;right:8px;bottom:8px;background:#14161bee;color:#cfd2d8;border-radius:10px;padding:6px 10px;font-size:11px;width:118px}
+.gauge b{color:#fff;font-size:15px}.gauge .meter{margin-top:3px}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.go{animation:flash .5s}@keyframes flash{0%{opacity:.95}100%{opacity:0}}
+.stamp2{position:absolute;left:0;right:0;top:34%;text-align:center;font-size:52px;font-weight:900;color:var(--red);
+  -webkit-text-stroke:3px #fff;paint-order:stroke fill;text-shadow:0 4px 0 #0005;transform:rotate(-8deg) scale(0);opacity:0;pointer-events:none}
+.stamp2.go{animation:stamp 1.8s forwards}
+@keyframes stamp{0%{transform:rotate(-8deg) scale(2.6);opacity:0}12%{transform:rotate(-8deg) scale(1);opacity:1}80%{opacity:1}100%{opacity:0;transform:rotate(-8deg) scale(1)}}
+.herohit{position:absolute;right:10px;top:42px;width:86px;height:86px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:3px solid var(--red);background:#fff;opacity:0;pointer-events:none}
+.herohit.go{animation:hit 1.8s forwards}@keyframes hit{0%{opacity:0;transform:translateX(30px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+#app.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-8px,3px)}40%{transform:translate(7px,-4px)}60%{transform:translate(-5px,2px)}80%{transform:translate(4px,-1px)}}
+.roster.mini #roster{max-height:20px;overflow:hidden}
+.pbar{position:relative;height:46px;background:#2a2f39;border-radius:10px;overflow:hidden;margin-top:6px}
+.pz{position:absolute;top:0;bottom:0}.pz.y{background:#f2c14e55}.pz.g{background:#4fbf7acc}
+.pn{position:absolute;top:-4px;bottom:-4px;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 8px #fff}
+.plab{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin:6px 2px 4px}
+.dbbox{position:relative;background:#0f1115;border:2px solid #e8e6e1;border-radius:14px;padding:14px 16px 26px;min-height:150px}
+.dbname{position:absolute;top:-14px;left:12px;background:var(--red);color:#fff;font-weight:900;font-size:14px;padding:3px 12px;border-radius:8px}
+.dbname span{font-weight:400;font-size:11px;opacity:.85}
+.dbtext{font-size:18px;line-height:1.75;margin-top:6px}
+.dbmore{position:absolute;right:14px;bottom:6px;color:var(--yellow);animation:blink 1s infinite}
+.dbhint{text-align:center;color:var(--dim);font-size:12px;margin-top:8px}
+.dbnar{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;color:var(--yellow);font-size:22px;font-weight:900;line-height:1.6;background:radial-gradient(circle,#1d2a1f,#0b0d10)}
+#dbStage.nar .dbnar{display:flex}#dbStage.nar #dbImg{display:none}
+.credit{text-align:center;color:var(--dim);font-size:12px;margin-top:12px;letter-spacing:1px}
+/* 原型導覽 */
+#nav button:not(:first-child){display:none}#nav.open button{display:inline-block}
+#nav{position:absolute;top:calc(env(safe-area-inset-top) + 8px);right:8px;z-index:9;display:flex;gap:4px}
+#nav button{font:inherit;font-size:10px;background:#000a;color:#aaa;border:1px solid #333;border-radius:6px;padding:3px 6px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="nav">
+  <button onclick="this.parentNode.classList.toggle('open')">☰</button>
+  <button onclick="go('title')">標題</button>
+  <button onclick="go('prologue')">序章</button>
+  <button onclick="CH=1;setupOffice();go('office')">第1章</button>
+  <button onclick="CH=2;setupOffice();go('office')">第2章</button>
+  <button onclick="startPlay()">遊玩</button>
+  <button onclick="showResult()">結算</button>
+</div>
+
+<!-- 0 標題 -->
+<section class="screen on" id="title">
+  <div class="spacer"></div>
+  <div><span class="stamp">內部機密</span></div>
+  <h1>園區<br><span>有限公司</span></h1>
+  <p>高薪・包吃住・免經驗<br>（你確定？）</p>
+  <div class="spacer"></div>
+  <button class="btn main" onclick="CH=1;setupOffice();go('prologue')">開始應徵</button>
+  <a class="btn fanlink" href="#" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">🐦 追蹤作者粉專：特殊刑事鴿</a>
+  <div class="credit">作者｜特殊刑事鴿</div>
+</section>
+
+<!-- 1 序章 -->
+<section class="screen" id="prologue">
+  <div class="tag">序章｜看起來是自己的選擇</div>
+  <div class="phone">
+    <div class="post">
+      <div class="hd"><div class="av"></div>海外工作機會分享團<span style="color:#999;font-weight:400">・3 分鐘前</span></div>
+      <div class="big">月薪 15 萬起</div>
+      <ul>
+        <li>免經驗，會打字就好</li>
+        <li>包機票、包吃住</li>
+        <li>名額有限，私訊詳談</li>
+      </ul>
+      <div class="flag" id="flag">⚠ 這則廣告有 3 個警訊（結算時揭曉）</div>
+    </div>
+  </div>
+  <div class="box narr"><img class="hero" id="pHero" src="img/hero0.jpg" alt=""><div id="pText">剛退伍，存款剩兩千三。房東昨天又傳訊息來了。<br>滑到這則貼文時，你停了一下。</div></div>
+  <div class="spacer"></div>
+  <div id="pChoices"></div>
+</section>
+
+<!-- 2 黑幕 -->
+<section class="screen" id="blackout">
+  <img src="img/hero1.jpg" alt="" style="width:130px;height:130px;border-radius:50%;object-fit:cover;margin:0 auto 24px;background:#fff;opacity:.9">
+  <div class="line">護照「先幫你保管」。</div>
+  <div class="line">手機「統一收起來」。</div>
+  <div class="line">車開了很久，窗外看不到路牌。</div>
+  <div class="line" style="color:var(--red);font-weight:900;margin-top:20px">你不是來上班的。</div>
+  <div class="spacer" style="flex:0;height:40px"></div>
+  <button class="btn main" id="boBtn" style="opacity:0;transition:opacity .6s" onclick="go('office')">……</button>
+</section>
+
+<!-- 3 派任務 -->
+<section class="screen" id="office">
+  <div class="tag" id="oTag">第 1 天｜園區・客服三組</div>
+  <div class="boss">
+    <img class="bossimg" id="officeBoss" src="img/boss0.jpg" alt="幹部">
+    <div class="bubble" id="oBubble">新人，我看你剛剛一路上<b>話很多</b>。<br>先去<b>網購組</b>，今天業績 5 萬，做不到就去後面「跑步」。</div>
+  </div>
+  <div class="box mission">
+    <div class="tag">今日任務</div>
+    <h3 id="oH3">假客服・解除分期</h3>
+    <div class="kv"><span>目標業績</span><span id="oTarget">NT$ 50,000</span></div>
+    <div class="kv"><span>名單</span><span id="oList">一疊（約 20 人）</span></div>
+    <div class="kv"><span>難度</span><span id="oDiff">★☆☆☆☆</span></div>
+    <div class="kv"><span>你的評價</span><span id="oEval">話多（客服適性 +1）</span></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn main" id="oBtn2" onclick="startPlay()">坐上位子</button>
+</section>
+
+<!-- 4 遊玩 -->
+<section class="screen" id="play">
+  <div class="hud">
+    <div>業績<b id="hMoney">$0</b></div>
+    <div>可信度<b id="hTrust">50</b></div>
+    <div>今日撥出<b id="hDial">0</b></div>
+  </div>
+  <div class="roster"><div class="rtitle" id="rTitle">📋 今日名單<span id="hLeft"></span></div><div id="roster"></div></div>
+  <div class="stage" id="stage">
+    <div class="dialing">📞 撥號中……</div>
+    <div id="call">
+      <img class="portrait" id="face" src="img/kai0.jpg" alt="">
+      <div class="info" id="vInfo"></div>
+      <div class="plate"><b id="vName">阿凱</b><span class="ctime">● <span id="callT">00:00</span></span><div class="role" id="role">你的身分：一線・蝦子客服</div></div>
+      <div class="gauge">戒心 <b id="alertNum">0</b><div class="meter"><i id="alert"></i></div></div>
+    </div>
+    <div class="flash" id="flash"></div>
+    <div class="stamp2" id="stamp">抓到了！</div>
+    <img class="herohit" id="heroHit" src="img/hero3.jpg" alt="">
+  </div>
+  <div class="chat" id="chat"></div>
+  <div class="choices" id="choices"></div>
+  <div class="sw" id="sw"></div>
+</section>
+
+<!-- 5 小遊戲 -->
+<section class="screen" id="mini">
+  <div class="mini-top">
+    <div class="tag">取信小遊戲</div>
+    <h2 id="mTitle">猜猜他在想什麼</h2>
+    <div class="diff">難度依警覺度：<span id="mDiff">★★☆</span></div>
+  </div>
+  <div class="timer"><i id="mTimer"></i></div>
+  <div class="quiz-q" id="mQ"></div>
+  <div id="mChoices"></div>
+  <div class="spacer"></div>
+  
+</section>
+
+<!-- 5.5 電話另一頭 -->
+<section class="screen" id="other" style="background:#000;justify-content:center">
+  <div class="tag" style="text-align:center;margin-bottom:24px">—— 電話另一頭 ——</div>
+  <div id="oLines" style="text-align:center"></div>
+  <div style="height:30px"></div>
+  <div id="oBtn" style="opacity:0;transition:opacity .8s">
+    <div style="text-align:center;color:var(--red);font-weight:900;margin-bottom:6px">你，就是電話這頭的那個人。</div>
+    <button class="btn main" onclick="backFromOther()">回到座位</button>
+  </div>
+</section>
+
+<!-- 5.8 下班後 -->
+<section class="screen" id="debrief" onclick="dbTap()">
+  <div class="tag" style="text-align:center">下班後，你一直想起今天那幾個人……<span id="dbCount" style="float:left"></span></div>
+  <div class="stage" id="dbStage" style="margin-top:8px"><img class="portrait" id="dbImg" src="img/kai3.jpg" alt=""><div class="dbnar">🛡<br>反詐小提醒</div></div>
+  <div class="dbbox"><div class="dbname" id="dbName"></div><div class="dbtext" id="dbText"></div><div class="dbmore" id="dbMore">▼</div></div>
+  <div class="dbhint">點畫面繼續</div>
+</section>
+
+<!-- 6 結算 -->
+<section class="screen" id="result" style="overflow-y:auto">
+  <div class="tag"><span id="rDay">第 1 天</span>結算｜幹部評價</div>
+  <img class="gimg" id="gBoss" src="img/boss2.jpg" alt="幹部">
+  <div class="grade" id="grade">C</div>
+  <div class="grade-sub" id="gradeSub">「業績普通，人還活著。」</div>
+  <div class="box" style="margin-top:14px">
+    <div class="result-row"><span id="rDialL">撥出電話</span><b id="rDial">0 通</b></div>
+    <div class="result-row"><span>願意聊下去</span><b>3 人</b></div>
+    <div class="result-row"><span>今日業績</span><b id="rMoney">$0</b></div>
+    <div class="result-row"><span>目標</span><b id="rTarget">$50,000</b></div>
+    <div class="result-row"><span>被識破</span><b class="neg" id="rFail">1 人</b></div>
+    <div class="result-row" style="border:0"><span>實領薪水</span><b class="neg">$0（抵食宿）</b></div>
+  </div>
+  <div class="punish"><img class="hero" id="pnHero" src="img/hero3.jpg" alt=""><div id="punish"><b>懲罰：</b>晚上加班到兩點，宵夜取消。<br>旁邊的阿傑說他來了半年，還沒拿過一毛錢。</div><div style="clear:both"></div></div>
+  <div class="lesson">
+    <h4>🛡 重點回顧</h4>
+    <ul id="lessons"></ul>
+  </div>
+  <button class="btn main" onclick="nextDay()">隔天</button>
+  <a class="btn fanlink" href="#" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">🐦 想看更多？追蹤特殊刑事鴿</a>
+  <div class="credit">作者｜特殊刑事鴿　　本遊戲為反詐騙宣導用途，劇情純屬虛構</div>
+</section>
+
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const FANPAGE='https://www.facebook.com/profile.php?id=100057367842943';/* 粉專網址填這裡 */
+addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.fanlink').forEach(a=>a.href=FANPAGE));
+['boss','hero','kai','mei','chen'].forEach(k=>{for(let i=0;i<(k==="boss"?3:4);i++){const im=new Image();im.src='img/'+k+i+'.jpg';}});
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');
+  if(id==='prologue')prologue(0);if(id==='blackout')blackout();}
+
+/* 序章：每個選項最後都走向同一個結果 */
+const P=[
+  {t:'剛退伍，存款剩兩千三。房東昨天又傳訊息來了。<br>滑到這則貼文時，你停了一下。',
+   c:[['私訊問看看','反正問一下又不會怎樣'],['先問朋友意見','你傳給了大學室友']]},
+  {t:'對方秒回，語音很熱情：「我們是正派公司，很多台灣人在這邊做。」<br>室友已讀不回。',
+   c:[['要求看公司資料','對方傳來一張營業登記照片'],['說要考慮一下','「名額只剩最後兩個喔」']]},
+  {t:'三天後，你站在機場。<br>來接你的人很親切，幫你拿行李，順手拿走了你的護照。',
+   c:[['跟上去','你也沒有回頭的錢了']]}
+];
+function prologue(i){
+  $('pText').innerHTML=P[i].t;$('pHero').src=i<2?'img/hero0.jpg':'img/hero1.jpg'; $('flag').style.display=i>0?'block':'none';
+  $('pChoices').innerHTML='';
+  P[i].c.forEach(([a,b])=>{const x=document.createElement('button');x.className='btn';
+    x.innerHTML=a+'<small>'+b+'</small>';x.onclick=()=>i+1<P.length?prologue(i+1):go('blackout');$('pChoices').appendChild(x);});
+}
+function blackout(){const L=document.querySelectorAll('#blackout .line');L.forEach(l=>l.classList.remove('show'));$('boBtn').style.opacity=0;
+  L.forEach((l,i)=>setTimeout(()=>l.classList.add('show'),400+i*1100));setTimeout(()=>$('boBtn').style.opacity=1,400+L.length*1100);}
+
+/* ===== 遊玩：三個被害人，每人三輪對話 + 讀心小遊戲 ===== */
+const V1=[
+{key:'kai',name:'阿凱',sub:'大學生',alert:25,pay:29989,
+ info:'名單資料：上週在<b>蝦子購物</b>買了球鞋 $3,280｜常熬夜，現在是早上九點',
+ nodes:{
+  start:{them:'喂……誰啊……（剛睡醒）',c:[
+   ['您好，蝦子購物客服，關於您上週的球鞋訂單',-5,'喔喔球鞋，怎麼了？不是到了嗎','n2'],
+   ['恭喜您！您是本月的幸運兒！',20,'……你是不是要賣我保險','n2'],
+   ['早安～有睡飽嗎？',10,'你誰啊，我媽嗎','n2']]},
+  n2:{c:[
+   ['我們不小心把您的付款方式設成「12 期分期」，每個月會自動扣款',5,'蛤？我明明一次付清欸','n3','說你的付款被「誤設成分期」'],
+   ['您的球鞋其實是假貨，我們要退款給您',10,'假的？我穿去夜市還被誇欸……','n3'],
+   ['沒事啦，只是想關心一下',25,'……那你打來幹嘛？我要睡了','n3']]},
+  n3:{c:[
+   ['您先別緊張，我們一步一步來',-10,'我沒緊張啊，是你比較緊張吧','quiz'],
+   ['我幫您轉接「銀行專員」處理',15,'銀行？買球鞋跟銀行有什麼關係','quiz'],
+   ['快！五分鐘內沒處理就扣十萬！',35,'你講話好像我媽在催我交報告','quiz']]}},
+ quiz:{q:'阿凱打了個哈欠：「那我要怎麼做？」<br>他現在最在意什麼？',o:[['「錢會不會真的被扣？」',1],['「球鞋是不是真的假貨」',.5],['「可以讓我回去睡了嗎」',0]]},
+ lesson:'ATM <b>沒有</b>「解除分期」功能，叫你去 ATM 處理訂單問題的，一定是詐騙',
+ caught:'阿凱的室友在旁邊說：「你是不是被詐騙？掛掉打 165 啦。」'},
+
+{key:'mei',name:'小美',sub:'公司會計',alert:40,pay:38976,
+ info:'名單資料：在<b>蝦子購物</b>買了氣炸鍋 $2,190，訂單編號 <b>SP1109-4873</b>｜職業會計，習慣對帳',
+ nodes:{
+  start:{them:'您好，我在開會，請長話短說。',c:[
+   ['您好，您的氣炸鍋訂單金額有誤',5,'有誤？訂單編號多少？','n2'],
+   ['在嗎在嗎在嗎～',20,'……我剛說我在開會。','n2'],
+   ['請問您是做會計的嗎？',25,'你怎麼知道？你到底哪位？','n2']]},
+  n2:{c:[
+   ['系統當機了，暫時看不到編號',25,'客服看不到訂單編號？','n3'],
+   ['（隨便唸一串數字）',15,'等等我對一下……跟我 APP 上的不一樣喔','n3'],
+   ['（照名單念）訂單編號 SP1109-4873，氣炸鍋一台',-15,'……對，是這筆沒錯。那到底哪裡有誤？','n3','對方報得出你的訂單編號和買了什麼']]},
+  n3:{c:[
+   ['那您下班後我再打給您',-15,'好，不過我會先看 APP 有沒有通知。','quiz'],
+   ['這是公司機密，不方便透露',30,'對帳還有機密？','quiz'],
+   ['您的主管已經知道這件事了',20,'我的主管……就是我自己。','quiz']]}},
+ quiz:{q:'小美停頓了一下，手指在滑手機。<br>她在想什麼？',o:[['「APP 裡怎麼沒有任何通知？」',1],['「這人聲音好像我們業務」',.5],['「中午要吃什麼」',0]]},
+ lesson:'對方報得出訂單編號，<b>不代表他是真客服</b>，個資可能早就外洩；有疑問就<b>自己打開官方 APP</b> 或官網核對，訂單沒有異常通知就是假的',
+ caught:'小美打開蝦子 APP，訂單狀態：「已完成」。她直接掛了。'},
+
+{key:'chen',name:'陳先生',sub:'工程師',alert:55,pay:59968,
+ info:'名單資料：在<b>蝦子購物</b>買了機械鍵盤 $4,500｜公司 IT，背景一直有打字聲',
+ nodes:{
+  start:{them:'喂，你好。（喀噠喀噠喀噠）',c:[
+   ['先生您好，您的鍵盤訂單出了點狀況',5,'嗯，什麼狀況？','n2'],
+   ['先生，您的電腦中毒了',30,'……我就是修電腦的。','n2'],
+   ['您好，我是蝦子購物的 AI 客服',15,'AI 客服會喘氣？','n2']]},
+  n2:{c:[
+   ['系統升級，導致您被重複扣款',15,'哪一版升級？給我看更新紀錄。','n3'],
+   ['您的 TCP 封包被分期了',40,'……封包分期。好，我開始錄音了。','n3'],
+   ['老實說我也不太懂，可以請您幫我看看嗎',-10,'哈，好啦，你說說看什麼狀況。','n3']]},
+  n3:{c:[
+   ['我傳個連結給您，點進去就能處理',30,'這個網域不是蝦子的喔。','quiz'],
+   ['您可以自己上官網確認看看',-5,'好啊，我現在就開。','quiz'],
+   ['這通電話要保密，不能跟別人說',25,'要求保密，是詐騙第一課。','quiz']]}},
+ quiz:{q:'陳先生安靜了三秒，打字聲停了。<br>他在幹嘛？',o:[['「在查這支來電號碼」',1],['「在幫我開官網」',.5],['「在打 Game」',0]]},
+ lesson:'叫你把 ATM <b>切成英文</b>、輸入「解除代碼」的，那串數字就是<b>轉帳金額</b>',
+ caught:'陳先生：「來電號碼查到了，165 的公告上有。謝謝你，我拿去分享。」'}
+];
+
+/* 收網：真正把錢弄走的過程，每個選項都標一個現實中的警訊 */
+/* 收網第一步：叫他去 ATM（ATM 根本沒有解除分期的功能） */
+const ATMFLAG='叫你去 ATM「解除分期」，但 ATM 根本沒有這個功能';
+V1[0].nodes.c1={them:'好啦……那我要怎麼做？',c:[
+ ['要麻煩您到附近的 ATM，我在電話上帶您取消設定',-5,'喔……樓下就有超商，我穿個拖鞋。','c2',ATMFLAG],
+ ['用網銀也可以，不過 ATM 比較快',5,'我網銀密碼早就忘了，那去 ATM 好了。','c2',ATMFLAG],
+ ['您不用急，明天再處理也可以',30,'那我明天自己打給蝦子客服問好了。','c2']]};
+V1[1].nodes.c1={them:'好，那要怎麼處理？',c:[
+ ['麻煩您到 ATM，我在電話上帶您解除設定',15,'ATM 有「解除分期」這個功能？我怎麼沒看過。','c2',ATMFLAG],
+ ['這是銀行端的設定，只能透過 ATM 解除',5,'……好，我公司樓下有一台。','c2',ATMFLAG],
+ ['您手邊有信用卡嗎？我幫您刷退',35,'刷退要我的卡號？你不是客服嗎，系統裡應該有吧。','c2']]};
+V1[2].nodes.c1={them:'那你說，要怎麼處理？',c:[
+ ['要麻煩您到 ATM 操作解除',20,'ATM 沒有解除分期的功能，這我很確定。不過你說說看。','c2',ATMFLAG],
+ ['這要用 ATM 的「進階設定」才能解除',10,'進階設定？我倒想看看在哪。','c2',ATMFLAG],
+ ['老實說，這流程我也覺得很怪',-10,'哈，你很誠實。好，你說，我聽。','c2']]};
+
+/* 收網第二步：切成英文介面 */
+const ENFLAG='叫你把 ATM 切成英文介面';
+V1[0].nodes.c2={them:'好，卡插進去了，然後咧？',c:[
+ ['先把語言切成英文，中文版沒有這個選項',5,'英文喔？我英文很爛欸……好啦，切了。','c3',ENFLAG],
+ ['直接按「轉帳」就好',40,'轉帳？？你不是說要取消嗎？','c3'],
+ ['畫面上的字不用管，聽我念就好',10,'喔……好喔，你慢慢念。','c3','叫你不要看畫面，照他念的按']]};
+V1[1].nodes.c2={them:'我在 ATM 前面了。',c:[
+ ['先把語言切換成英文',20,'為什麼要切英文？中文不能處理嗎？','c3',ENFLAG],
+ ['英文介面才有「解除設定」的選項，中文版沒有',10,'……好，切了。','c3',ENFLAG],
+ ['直接按「轉帳」',40,'轉帳？你剛剛明明說是解除設定。','c3']]};
+V1[2].nodes.c2={them:'到了。來吧。',c:[
+ ['先把介面切成英文',25,'切英文，是因為怕我看懂中文吧。','c3',ENFLAG],
+ ['您是工程師，英文介面應該比較順手吧',10,'嗯……拍我馬屁喔。好，切了。','c3',ENFLAG],
+ ['直接按「轉帳」',45,'你連演都懶得演了。','c3']]};
+
+/* 收網第三步：輸入「解除代碼」——其實就是轉帳金額 */
+const CODEFLAG='要你輸入的「解除代碼」，其實就是轉帳金額';
+V1[0].nodes.c3={them:'切好了，全部都英文……然後要按什麼？',c:[
+ ['輸入解除代碼 29989，按確認就好',5,'二九九八九……好，按了。','pay',CODEFLAG],
+ ['這組代碼是系統專門給您的，別人不能用',-5,'喔喔，我的專屬代碼，好。','pay',CODEFLAG],
+ ['先輸入您戶頭裡剩多少錢',40,'……問我餘額要幹嘛？','pay']]};
+V1[1].nodes.c3={them:'畫面上寫 Transfer……這不是轉帳嗎？',c:[
+ ['那是系統名稱，請輸入解除代碼 38976',15,'38976……前面怎麼有個 $ 符號？','pay',CODEFLAG],
+ ['英文翻譯有誤，銀行很多人反映過',10,'……翻譯錯？好吧。','pay',CODEFLAG],
+ ['對，就是轉帳，先轉過來我再退給您',45,'你終於講實話了。','pay']]};
+V1[2].nodes.c3={them:'英文介面。所以呢？',c:[
+ ['請輸入解除代碼 59968',20,'Amount：59,968。這叫金額，不叫代碼。','pay',CODEFLAG],
+ ['輸入代碼後螢幕會顯示「成功」',10,'會顯示「轉帳成功」吧。','pay',CODEFLAG],
+ ['您直接按確認就好，其他我處理',30,'我連數字都還沒輸入，你要我確認什麼？','pay']]};
+
+/* 電話另一頭：騙成功之後，被害人那邊發生的事 */
+const OTHER=[
+ ['阿凱照著電話念的「解除代碼」，按下確認。','他以為自己在取消分期。螢幕上寫的是：','TRANSFER　AMOUNT　NT$ 29,989','那是他這個月的房租和生活費。','下午他打給真正的蝦子客服，對方說：「我們從來沒有打電話給您。」'],
+ ['小美當了十年會計，她看到了那個 $ 符號。','但對方報得出訂單編號，報得出氣炸鍋，她就信了。','TRANSFER　AMOUNT　NT$ 38,976','她不敢跟同事講，也不敢跟家人講。','直到晚上看到新聞：「同樣手法，今年已經上千人受害。」'],
+ ['陳先生一路吐槽，最後還是按下去了。','因為對方說：「不處理，下個月會繼續扣。」','TRANSFER　AMOUNT　NT$ 59,968','他是 IT，大家都說他不可能被騙。','被騙的人最常說的一句話是：「我以為我不會。」']
+];
+
+let S,vi,cur;
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+function startPlay(){V=C().V;S={money:0,trust:50,results:[],dialed:0};vi=0;$('rTitle').firstChild.textContent=C().rTitle;go('play');callVictim();}
+function hud(){$('hMoney').textContent='$'+S.money.toLocaleString();$('hTrust').textContent=S.trust;
+  $('hLeft').textContent='願意聊的：'+Math.min(vi+1,V.length)+'／'+V.length;$('hDial').textContent=S.dialed;
+  const al=Math.min(100,cur.alert);$('alert').style.width=al+'%';$('alertNum').textContent=al;
+  const f='img/'+V[Math.min(vi,V.length-1)].key+(cur.busted?3:al<35?0:al<65?1:2)+'.jpg';if(!$('face').src.endsWith(f)){$('face').src=f;$('face').classList.add('bump');setTimeout(()=>$('face').classList.remove('bump'),200);}}
+const SUR='陳林黃張李王吳劉蔡楊許鄭謝郭洪曾';
+const fake=()=>SUR[Math.floor(Math.random()*SUR.length)]+'○○ 09'+Math.floor(10+Math.random()*89)+'-***-'+Math.floor(100+Math.random()*899);
+function row(cls,st){const d=document.createElement('div');d.className='rrow '+cls;d.innerHTML='<span class="n">'+fake()+'</span><span class="st">'+st+'</span>';$('roster').appendChild(d);$('roster').scrollTop=1e9;return d;}
+let clock;function startClock(){let t=0;clearInterval(clock);$('callT').textContent='00:00';clock=setInterval(()=>{t++;$('callT').textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');},1000);}
+function say(who,t){const m=document.createElement('div');m.className='msg '+who;m.innerHTML=t;$('chat').appendChild(m);$('chat').scrollTop=1e9;return m;}
+function pop(n){const p=document.createElement('div');p.className='pop';p.style.color=n>0?'var(--red)':'var(--green)';
+  p.textContent=(n>0?'警覺 +':'警覺 ')+n;$('play').appendChild(p);setTimeout(()=>p.remove(),1000);}
+function theySay(t,cb){const ty=say('them typing','對方輸入中……');setTimeout(()=>{ty.remove();say('them',t);cb&&setTimeout(cb,400);},900+Math.random()*500);}
+function callVictim(){
+  const v=V[vi];cur={alert:v.alert,flags:[],role:1,busted:false,r2:null,tk:0};$('roster').parentNode.classList.remove('mini');$('role').textContent='你的身分：'+C().role1;document.querySelector('.dialing').textContent=C().dialing;$('role').classList.remove('r2');$('chat').innerHTML='';$('choices').innerHTML='';$('call').classList.remove('on');
+  if(vi===0)$('roster').innerHTML='';
+  $('vName').innerHTML=v.name+' <span class="sub">｜'+v.sub+'</span>';$('vInfo').innerHTML=v.info;hud();
+  say('sys',C().dialing);
+  // 大部分電話根本騙不到人：先撥幾通失敗的，才有人願意聊
+  const n=3+Math.floor(Math.random()*4),fl=shuffle(C().fails).slice(0,n);
+  fl.forEach((t,i)=>setTimeout(()=>{S.dialed++;row('dead',t);hud();},300+i*550));
+  setTimeout(()=>{S.dialed++;row('live',C().live);hud();$('chat').innerHTML='';
+    $('call').classList.add('on');$('roster').parentNode.classList.add('mini');startClock();if(v.opener)say('me',v.opener);theySay(v.nodes.start.them,()=>node('start'));},300+n*550+500);}
+const FAILS=['未接聽','未接聽','未接聽','空號','「喂？」……「蝦子購物？我沒在蝦子買東西。」（掛斷）','「詐騙喔？」（掛斷）','「我在開車。」（掛斷）','「你們這禮拜打第三次了。」（掛斷）','對方接起來，沉默三秒，掛斷','「我阿嬤說不認識的號碼不要接。」（掛斷）','轉進語音信箱','「我直接報警喔。」（掛斷）','對方手機顯示「+855」開頭，直接拒接','對方看到「+63」國外來電，沒接','對方手機的來電辨識跳出「疑似詐騙」，拒接','「客服怎麼會用國外號碼打來？」（掛斷）','對方看到「+」開頭的號碼，直接封鎖'];
+/* ===================== 第二章：賣貨便（假買家 + 假客服） ===================== */
+const LINKF='買家傳連結叫你填資料（網址不是官方的）',VERIF='買家說你的賣場「沒有實名認證」',CSF='客服的聯絡方式是「買家」給的',
+ SIGNF='「客服」說你沒簽署金流協議、帳戶要驗證',ATMF2='叫你去 ATM／網銀「驗證帳戶」',CODEF2='要你輸入的「驗證碼」，其實就是轉帳金額',REFF='說錢「驗證完會全額退回」',
+ CS='賣貨快客服中心';
+const V2=[
+{key:'kai',name:'阿凱',sub:'賣二手球鞋',alert:25,pay:19988,opener:'請問球鞋還在嗎？我要買～',
+ info:'賣場：二手球鞋 九成新 <b>$2,500</b>｜月底缺錢，很想趕快賣掉',
+ nodes:{
+  start:{them:'在喔！還在～',c:[
+   ['太好了，我要買！我用賣貨快下單喔',-5,'好啊好啊～','n2'],
+   ['我人在國外，可以先幫我保留嗎？',20,'國外？那你怎麼收貨……','n2'],
+   ['我出兩倍價，現在就買',35,'兩倍？……你認真的？','n2']]},
+  n2:{c:[
+   ['我開好賣場了，你點這個連結填一下收款資料，物流會去取貨順便給你錢',0,'喔喔，好，我填填看。','n3',LINKF],
+   ['你直接加我 LINE，我傳給你比較快',15,'LINE？在拍賣上講不行嗎？','n3'],
+   ['先給我你的銀行帳號，我直接匯',20,'先匯？好啊……你不怕我不寄喔？','n3']]},
+  n3:{them:'欸，畫面跳出「賣家帳戶未認證，無法收款」？',c:[
+   ['怪怪的，我這邊也顯示你賣場還沒實名認證',-5,'蛤？我賣東西還要認證？','quiz',VERIF],
+   ['這很常見啦，處理一下就好',5,'常見？我第一次賣東西欸。','quiz'],
+   ['那你自己想辦法',30,'……你這買家態度很差欸。','quiz']]},
+  c1:{them:'那我要找誰處理？',c:[
+   ['頁面上有客服 LINE，你加一下，他們回很快',-5,'好，我加了。','switch',CSF,CS],
+   ['我把客服連結傳給你，你點進去聯絡',0,'好，我點了。','switch',CSF,CS],
+   ['你去官方 App 找客服就好',50,'好，我去官方 App 找……可是找不到這個問題欸。','switch',null,CS]]},
+  k:{them:'你好～買家說我的賣場沒有實名認證，沒辦法收錢？',c:[
+   ['您好，系統顯示您尚未簽署「金流保障協議」，需要完成帳戶驗證',-10,'喔……原來要簽協議。','c2',SIGNF],
+   ['請問是哪一位買家呢？',20,'……不是你們系統通知買家的嗎？','c2'],
+   ['對，買家剛剛有跟我說',35,'買家跟客服說？你們是同一個人喔？','c2']]},
+  c2:{them:'那要怎麼驗證？',c:[
+   ['請您到 ATM 或網銀操作帳戶驗證，我們線上協助',5,'ATM 喔？好，我去。','c3',ATMF2],
+   ['驗證是為了保障您的收款安全，驗完全額退回',-5,'喔喔，會退回就好。','c3',REFF],
+   ['請提供您的卡號和背面三碼',35,'賣東西要我的卡號？？','c3']]},
+  c3:{them:'好，然後要按什麼？',c:[
+   ['輸入驗證碼 19988，按確認',5,'一九九八八……好，按了。','pay',CODEF2],
+   ['驗證成功後，系統會把這筆加上貨款一起匯給您',-5,'喔！那很好欸。','pay',REFF],
+   ['直接匯 19,988 到這個帳戶',35,'……直接匯？？','pay']]}},
+ quiz:{q:'阿凱盯著「帳戶未認證」幾個字。<br>他在想什麼？',o:[['「不處理，球鞋就賣不掉了」',1],['「這買家是不是怪怪的」',.5],['「球鞋要不要先洗一下」',0]]},
+ lesson:'買家說你的賣場「沒有實名認證」、叫你去找客服的，那個客服<b>就是同一夥人</b>',
+ caught:'阿凱的室友湊過來看：「賣東西要匯錢給客服？你被騙了啦，打 165。」'},
+
+{key:'mei',name:'小美',sub:'賣閒置氣炸鍋',alert:40,pay:29987,opener:'您好，請問氣炸鍋還在嗎？',
+ info:'賣場：閒置氣炸鍋 <b>$1,200</b>｜下班才回訊息，做事很仔細',
+ nodes:{
+  start:{them:'您好，還在喔。',c:[
+   ['您好～我要買，用賣貨快下單可以嗎？',-5,'可以，麻煩您下單。','n2'],
+   ['我在國外出差，可以請朋友去拿嗎？',20,'可以面交，您朋友方便嗎？','n2'],
+   ['我直接出兩倍價',35,'不用，原價就好。……您確定沒問題？','n2']]},
+  n2:{c:[
+   ['我開好賣場了，您點連結填收款資料，物流會去取貨順便付款',10,'物流取貨順便付款？這流程我沒看過，我先看一下。','n3',LINKF],
+   ['賣貨快最近改版了，要從這個連結進去',5,'……好，我看看。','n3',LINKF],
+   ['您給我帳號，我直接匯款給您',15,'不用，走平台就好。','n3']]},
+  n3:{them:'這個網址怎麼跟官方的不太一樣？而且跳出「帳戶未認證」。',c:[
+   ['官方最近換網域了，我這邊也顯示您賣場還沒實名認證',5,'……換網域？好吧。','quiz',VERIF],
+   ['我也不清楚耶，您要不要問一下客服？',0,'嗯，我問問看。','quiz'],
+   ['別管網址了，趕快填一填',30,'網址不一樣，我不填。','quiz']]},
+  c1:{them:'客服要怎麼聯絡？',c:[
+   ['頁面右下角有客服 LINE，加一下就好',10,'客服用 LINE？好，我加加看。','switch',CSF,CS],
+   ['我把客服的聯絡方式傳給您',5,'……好。','switch',CSF,CS],
+   ['您去官方 App 找客服就好',50,'好，我從官方 App 找。','switch',null,CS]]},
+  k:{them:'您好，我想先確認：你們真的是賣貨快的官方客服嗎？',c:[
+   ['是的，這是官方認證帳號，您看我們的大頭貼有藍勾勾',0,'……LINE 的勾勾誰都能放吧。不過好吧。','c2','客服拿「官方認證」頭貼、勾勾來取信'],
+   ['系統顯示您尚未簽署金流保障協議，需要驗證帳戶',-5,'簽署協議……好，要怎麼做？','c2',SIGNF],
+   ['當然是啊，您不信可以去問買家',30,'問買家？我在問的是你。','c2']]},
+  c2:{them:'驗證要怎麼做？',c:[
+   ['請您登入網銀，我們線上協助您完成驗證',10,'登入了。','c3',ATMF2],
+   ['驗證金會在 24 小時內全額退回',5,'會退回……好。','c3',REFF],
+   ['請您提供卡號和背面三碼',40,'客服要卡號背面三碼？不可能。','c3']]},
+  c3:{them:'畫面寫「轉帳」，這不是轉帳嗎？',c:[
+   ['那是系統名稱，請在金額欄輸入驗證碼 29987',15,'驗證碼……放在金額欄？','pay',CODEF2],
+   ['對，這是驗證流程的一部分，完成後會退回',10,'……好吧。','pay',REFF],
+   ['您就當作先轉一筆保證金',40,'保證金？賣東西還要付保證金？','pay']]}},
+ quiz:{q:'小美看著網址列，手指停在螢幕上。<br>她在想什麼？',o:[['「網址到底對不對？」',1],['「這買家打字好有禮貌」',.5],['「氣炸鍋要不要洗一下再寄」',0]]},
+ lesson:'客服要<b>自己從官方 App 或官網</b>找，別人給你的客服 LINE、連結都不算',
+ caught:'小美打開真正的官方 App 問客服，對方回覆：「我們不會要求賣家匯款驗證。」'},
+
+{key:'chen',name:'陳先生',sub:'賣二手顯示卡',alert:55,pay:49986,opener:'顯卡還在嗎？不殺價，直接買。',
+ info:'賣場：二手顯示卡 <b>$6,800</b>｜一直被殺價，有點不耐煩',
+ nodes:{
+  start:{them:'在。不殺價？',c:[
+   ['不殺價，我直接用賣貨快下單',-5,'好。','n2'],
+   ['我在國外，可以先保留嗎？',25,'國外買二手顯卡？運費比顯卡貴吧。','n2'],
+   ['我出兩倍',40,'兩倍。好喔，詐騙仔。','n2']]},
+  n2:{c:[
+   ['我開好賣場了，你點連結填收款資料，物流會去取貨順便給錢',15,'物流取貨順便給錢？……好啊，我看看。','n3',LINKF],
+   ['你點這個連結就能收款，很方便',10,'讓我看看網址。','n3',LINKF],
+   ['你直接給我帳號就好',20,'帳號給你可以，反正是你匯給我。','n3']]},
+  n3:{them:'網址是 mai-huo-kuai-service 什麼的。官方的不是這個吧。',c:[
+   ['那是官方外包的金流平台，所以網址不同',10,'外包？嗯。然後呢？','quiz',VERIF],
+   ['我這邊顯示你賣場沒實名認證，要先處理',5,'我賣場開三年了，現在才要認證？','quiz',VERIF],
+   ['你很懂欸，那你自己處理',30,'好，我自己處理：檢舉你。','quiz']]},
+  c1:{them:'要找誰？',c:[
+   ['頁面上有客服 LINE，加一下就好',15,'客服用 LINE。好，我加，看你們演。','switch',CSF,CS],
+   ['我傳客服連結給你',10,'好。','switch',CSF,CS],
+   ['你去官方 App 找客服',50,'我已經在官方 App 了，客服說沒有「實名認證」這種東西。','switch',null,CS]]},
+  k:{them:'你好。先告訴我：你們怎麼知道我的帳戶「沒認證」？',c:[
+   ['系統偵測到您未簽署金流保障協議',0,'哪個系統？算了，繼續。','c2',SIGNF],
+   ['是買家回報的',25,'買家回報，客服就知道？你們同一台電腦喔？','c2'],
+   ['這是機密，不方便說',35,'對帳戶本人保密帳戶狀態？','c2']]},
+  c2:{them:'驗證要怎麼做？',c:[
+   ['請到 ATM 操作帳戶驗證',20,'ATM 沒有「帳戶驗證」這個功能。','c3',ATMF2],
+   ['用網銀轉一筆驗證金，驗完退回',15,'轉帳就叫轉帳，不叫驗證。','c3',REFF],
+   ['請提供卡號和背面三碼',45,'好，我提供 165 的電話給你。','c3']]},
+  c3:{them:'好，假設我照做。然後呢？',c:[
+   ['輸入驗證碼 49986',20,'Amount：49,986。又是這招。','pay',CODEF2],
+   ['驗證完會連同貨款一起匯給您',10,'所以我先給你錢，你再給我更多錢。這叫詐騙。','pay',REFF],
+   ['您直接按確認就好',30,'我什麼都還沒輸入，你要我確認什麼？','pay']]}},
+ quiz:{q:'陳先生沉默了三秒。<br>他在幹嘛？',o:[['「在查這個網址是誰註冊的」',1],['「在看我的帳號註冊多久」',.5],['「在打 Game」',0]]},
+ lesson:'平台<b>不會</b>要賣家「實名認證」、「簽署金流協議」或匯款驗證。賣東西是<b>你收錢，不是你付錢</b>',
+ caught:'陳先生：「網址、客服 LINE、驗證碼，三個都截圖了。謝啦，我拿去 165 檢舉。」'}
+];
+
+/* 章節設定 */
+let CH=1;
+const CHS={
+1:{V:V1,fails:FAILS,target:50000,role1:'一線・蝦子客服',r2:'銀行專員 王經理',r2pre:'二線・',
+   dialing:'📞 撥號中……',live:'📞 接通了，他沒有馬上掛',rTitle:'📋 今日名單',next:'打下一通',dialLabel:'撥出電話',unit:' 通',
+   other:OTHER,
+   sw:{tag:'切換身分',front:'一線<br><b>蝦子客服 小周</b>',hint:'換個聲音，別讓他聽出來是同一個人',icon:'🎙',flag:'一通電話被轉給好幾個「單位」',
+     opts:[['壓低聲音，裝成熟',0,''],['加一點台灣國語',-5,''],['算了，用原本的聲音',30,'等等……你聲音跟剛剛的客服好像？']],
+     music:'♪ 請稍候，正在為您轉接 ♪',holdHint:'接太快，他會懷疑你們是同一個人<br>拖太久，他會冷靜下來，自己去查',pick:'身分接起',
+     slow:'……不對，我先掛掉，自己打銀行的客服電話問。',fast:'⚠ 轉接也太快了吧',done:'轉接完成，你現在是'},
+   office:{tag:'第 1 天｜園區・客服三組',bubble:'新人，我看你剛剛一路上<b>話很多</b>。<br>先去<b>網購組</b>，今天業績 5 萬，做不到就去後面「跑步」。',
+     h3:'假客服・解除分期',list:'一疊（約 20 人）',diff:'★☆☆☆☆',eval:'話多（客服適性 +1）',btn:'坐上位子'},
+   extra:['<li>詐騙最常用三招：<b>安撫</b>你、<b>催</b>你、給你<b>甜頭</b>。聽到這三種話，先停下來</li>','<li>來電顯示「<b>+</b>」開頭的是境外來電，自稱國內客服、銀行卻用國外號碼打來，直接掛</li>','<li>不確定的時候，掛掉電話打 <b>165</b> 問</li>'],
+   dialLine:n=>'你今天撥了 '+n+' 通，大部分人直接掛掉。現實也是這樣，只是沒被騙的人不會上新聞。'},
+2:{V:V2,fails:['已讀不回','已讀不回','「只限面交喔」','「你先匯款我再寄」','「已售出」','對方封鎖了你','「你帳號昨天才註冊的欸」','「頭貼也太假，詐騙喔？」','「上一個也這樣講，結果是詐騙」','「賣貨快？我只收現金」'],
+   target:50000,role1:'假買家・小安',r2:CS,r2pre:'分身・',
+   dialing:'💬 私訊賣家中……',live:'💬 對方回覆了',rTitle:'📋 今日賣場清單',next:'私訊下一個',dialLabel:'私訊賣場',unit:' 個',
+   other:[
+    ['阿凱以為自己在「驗證帳戶」。螢幕上寫的是：','TRANSFER　AMOUNT　NT$ 19,988','球鞋沒賣掉，錢先不見了。','那個「買家」帳號，隔天就消失了。','他填的那張表單，也讓他上了別人的名單。'],
+    ['小美懷疑過網址，也問過「你們是官方嗎」。','但客服答得太完整，買家又一直催。','TRANSFER　AMOUNT　NT$ 29,987','氣炸鍋還在她桌上。','她最後悔的是：客服的 LINE，是買家給的。'],
+    ['陳先生講了一整晚「這是詐騙」。','最後一句是：「好，我照做，看你們怎麼退。」','TRANSFER　AMOUNT　NT$ 49,986','沒有退。','他想證明自己不會被騙，結果證明了另一件事。']],
+   sw:{tag:'切換帳號',front:'買家<br><b>小安</b>',hint:'換一個帳號的說話方式，別讓他發現是同一個人',icon:'⌨',flag:'「買家」和「客服」其實是同一夥人',
+     opts:[['官方客套話：「親愛的用戶您好」',0,''],['貼一堆客服貼圖',-5,''],['照買家的口氣打字',30,'……你打字的習慣怎麼跟那個買家一模一樣？']],
+     music:'⌛ 他傳訊息來了，先別急著回……',holdHint:'秒回太假，像有人早就在等他<br>拖太久，他會自己去官方 App 查',pick:'帳號回覆',
+     slow:'……算了，我直接去官方 App 問好了。',fast:'⚠ 秒回，也太快了吧',done:'你切換到'},
+   office:{tag:'第 2 天｜園區・拍賣組',bubble:'昨天的表現我看到了。<br>今天去<b>拍賣組</b>裝買家。記住，<b>客服也是你</b>。',
+     h3:'假買家・賣貨便',list:'一頁賣場清單（約 20 個）',diff:'★★☆☆☆',eval:'打字快（拍賣適性 +1）',btn:'打開拍賣 App'},
+   extra:['<li>詐騙最常用三招：<b>安撫</b>你、<b>催</b>你、給你<b>甜頭</b>。聽到這三種話，先停下來</li>','<li>賣東西是<b>你收錢</b>。任何要賣家「先匯款」、「驗證帳戶」的，都是詐騙</li>','<li>客服要<b>自己從官方 App</b> 找，別人給的客服 LINE、連結都不算</li>','<li>不確定的時候，打 <b>165</b> 問</li>'],
+   dialLine:n=>'你今天私訊了 '+n+' 個賣場，大部分人不理你。現實也是這樣。'}
+};
+const C=()=>CHS[CH];
+const R2=()=>cur.r2||C().r2;
+function setupOffice(){const o=C().office;$('oTag').textContent=o.tag;$('oBubble').innerHTML=o.bubble;$('oH3').textContent=o.h3;
+  $('oTarget').textContent='NT$ '+C().target.toLocaleString();$('oList').textContent=o.list;$('oDiff').textContent=o.diff;$('oEval').textContent=o.eval;$('oBtn2').textContent=o.btn;}
+function nextDay(){if(CH===1){CH=2;setupOffice();go('office');}else{CH=1;setupOffice();go('title');}}
+
+/* 換身分／換帳號 → 語氣 → 回覆空檔 */
+function doSwitch(){if(cur.sw)return;cur.sw=true;
+  const w=C().sw;cur.flags.push(w.flag);
+  const sw=$('sw');sw.className='sw on';
+  sw.innerHTML='<div class="tag">'+w.tag+'</div><div class="card3"><div class="cardi" id="cardi"><div class="cf">'+w.front+'</div><div class="cb">'+(CH===1?'二線<br>':'客服<br>')+'<b>'+R2()+'</b></div></div></div>'
+   +'<div style="margin-top:18px;font-size:14px;color:var(--dim)">'+w.hint+'</div><div id="voice"></div>';
+  setTimeout(()=>$('cardi').classList.add('flip'),400);
+  setTimeout(()=>{if(!$('voice'))return;shuffle(w.opts).forEach(([t,a,warn])=>{
+    const b=document.createElement('button');b.className='btn';b.textContent=w.icon+' '+t;
+    b.onclick=()=>{if(cur.voiced)return;cur.voiced=true;cur.alert+=a;cur.voiceWarn=warn;if(a)pop(a);hud();hold();};$('voice').appendChild(b);});},1300);
+}
+function hold(){
+  const w=C().sw,sw=$('sw');let t=0;
+  sw.innerHTML='<div class="tag">等待中</div><div class="music">'+w.music+'</div><div class="sec" id="holdT">0.0 秒</div>'
+   +'<div class="sub" style="text-align:center;margin:8px 0 18px;color:var(--dim)">'+w.holdHint+'</div>'
+   +'<button class="btn main" id="pick">用「'+R2()+'」'+w.pick+'</button>';
+  const iv=setInterval(()=>{t+=.5;$('holdT').textContent=t.toFixed(1)+' 秒';
+    if(t>3){cur.alert+=4;hud();}
+    if(cur.alert>=100){clearInterval(iv);sw.className='sw';bust();say('warn','💥 等太久，他冷靜下來了');
+      say('them',w.slow);say('sys','📵 對方離開了');endCall(false);}},500);
+  $('pick').onclick=()=>{clearInterval(iv);sw.className='sw';cur.role=2;$('role').textContent='你的身分：'+C().r2pre+R2();$('role').classList.add('r2');
+    say('sys','—— '+w.done+'「'+R2()+'」——');
+    if(t<1.5){cur.alert+=15;pop(15);hud();say('warn',w.fast);}
+    if(cur.voiceWarn)say('them',cur.voiceWarn);
+    if(cur.alert>=100){bust();say('sys','📵 對方離開了');endCall(false);return;}
+    theySay(V[vi].nodes.k.them.replace('{org}',R2().startsWith('165')?'165':'銀行的'),()=>node('k'));};
+}
+
+let V=V1;
+function node(id){
+  const v=V[vi],n=v.nodes[id];$('choices').innerHTML='';const tk=++cur.tk;
+  shuffle(n.c).forEach(([t,a,rep,next,flag,r2])=>{const b=document.createElement('button');b.className='btn';b.textContent='💬 '+t;if(cur.role===2)b.style.borderLeftColor='#7b4fc0';
+    b.onclick=()=>{if(tk!==cur.tk)return;cur.tk++;$('choices').innerHTML='';say(cur.role===2?'me r2':'me',t);cur.alert+=a;pop(a);hud();if(flag)cur.flags.push(flag);if(r2)cur.r2=r2;
+      if(a>=25)say('warn','⚠ 他起疑了');
+      if(cur.alert>=100){theySay(rep,()=>{bust();say('sys','📵 對方已掛斷');endCall(false);});return;}
+      theySay(rep,()=>next==='quiz'?toQuiz():next==='pay'?finalCheck():next==='switch'?doSwitch():node(next));};
+    $('choices').appendChild(b);});}
+function bust(){cur.busted=true;hud();
+  ['stamp','flash','heroHit'].forEach(id=>{const e=$(id);e.classList.remove('go');void e.offsetWidth;e.classList.add('go');});
+  const a=$('app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');}
+function toQuiz(){say('sys','🎲 關鍵時刻——讀他的心');$('choices').innerHTML='<button class="btn main" onclick="mini()">開始讀心</button>';}
+let tmr;
+/* ===== 取信小遊戲：三種輪流出現 ===== */
+const MINIS=['think','push','tone'];
+function startTimer(secs,onEnd){const t=$('mTimer');t.style.transition='none';t.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{t.style.transition='width '+secs+'s linear';t.style.width='0%';}));
+  clearTimeout(tmr);tmr=setTimeout(onEnd,secs*1000);}
+function mini(){if(cur.inMini)return;cur.inMini=true;const v=V[vi];go('mini');
+  const hard=cur.alert>=70?2:cur.alert>=40?1:0;$('mDiff').textContent=['★☆☆','★★☆','★★★'][hard];
+  $('mChoices').innerHTML='';$('mQ').innerHTML='';
+  const type=MINIS[(vi+S.results.length+Math.floor(Math.random()*3))%3];
+  ({think:miniThink,push:miniPush,tone:miniTone})[type](v,hard);}
+
+/* 1. 讀心：猜他現在在想什麼 */
+function miniThink(v,hard){$('mTitle').textContent='猜猜他在想什麼';$('mQ').innerHTML=v.quiz.q;
+  startTimer([9,7,5][hard],()=>quizDone(-1));
+  shuffle(v.quiz.o).forEach(([t,s])=>{const b=document.createElement('button');b.className='btn';b.textContent=t;
+    b.onclick=()=>quizDone(s);$('mChoices').appendChild(b);});}
+
+/* 2. 推一把：在他最動搖的那一刻按下去 */
+function miniPush(v,hard){$('mTitle').textContent='推他一把';
+  $('mQ').innerHTML=v.name+'在猶豫要不要照做。<br>等他<b style="color:var(--green)">最動搖</b>的那一刻，再推一把。';
+  const zone=[26,18,11][hard],c=20+Math.random()*60,spd=[0.9,1.25,1.6][hard];
+  $('mChoices').innerHTML='<div class="pbar"><div class="pz y" style="left:'+(c-zone)+'%;width:'+zone*2+'%"></div><div class="pz g" style="left:'+(c-zone/2)+'%;width:'+zone+'%"></div><div class="pn" id="pn"></div></div>'
+   +'<div class="plab"><span>綠色＝他最動搖的時候</span><span>推錯時機，他會更起疑</span></div><button class="btn main" id="pushBtn">推一把！</button>';
+  let x=0,dir=1,raf;const step=()=>{if(!$('pn'))return;x+=dir*spd;if(x>100){x=100;dir=-1}if(x<0){x=0;dir=1}$('pn').style.left=x+'%';raf=requestAnimationFrame(step);};raf=requestAnimationFrame(step);
+  startTimer([9,7,5][hard],()=>{cancelAnimationFrame(raf);quizDone(-1);});
+  $('pushBtn').onclick=()=>{cancelAnimationFrame(raf);const d=Math.abs(x-c);quizDone(d<=zone/2?1:d<=zone?.5:0);};}
+
+/* 3. 見招拆招：他說什麼，你就用哪一招 */
+const TONES=[
+ ['（嘆氣）我是不是被騙了啊……','安撫'],['你們確定這是真的嗎？我有點怕。','安撫'],['我心臟有點跳很快……','安撫'],
+ ['我晚點再處理好了。','催促'],['我先問一下我朋友。','催促'],['我明天再打給你。','催促'],
+ ['可是這樣要先花錢欸……','甜頭'],['我戶頭沒剩多少了。','甜頭'],['這樣我有什麼好處？','甜頭']];
+const TONEBTN={安撫:'🤝 安撫：「別擔心，我們一步一步來」',催促:'⏰ 催促：「今天沒處理，會繼續扣」',甜頭:'🎁 甜頭：「完成後全額退回，還有補償」'};
+function miniTone(v,hard){$('mTitle').textContent='見招拆招';
+  const rounds=shuffle(TONES).slice(0,3);let i=0,ok=0;
+  const ask=()=>{if(i>=3){quizDone(ok===3?1:ok===2?.5:0);return;}
+    const [line,ans]=rounds[i];$('mQ').innerHTML='<span style="color:var(--dim);font-size:13px">第 '+(i+1)+'／3 句</span><br>'+v.name+'：「'+line+'」';
+    $('mChoices').innerHTML='';startTimer([5,4,3][hard],()=>{i++;ask();});
+    shuffle(Object.keys(TONEBTN)).forEach(k=>{const b=document.createElement('button');b.className='btn';b.textContent=TONEBTN[k];
+      b.onclick=()=>{clearTimeout(tmr);if(k===ans)ok++;b.style.borderColor=k===ans?'var(--green)':'var(--red)';
+        $('mChoices').querySelectorAll('button').forEach(x=>x.disabled=true);setTimeout(()=>{i++;ask();},350);};$('mChoices').appendChild(b);});};
+  ask();}
+function quizDone(s){if(cur.qd)return;cur.qd=true;clearTimeout(tmr);go('play');let d;
+  if(s===1){d=-15;say('sys','✅ 讀心成功');S.trust+=10;}
+  else if(s===.5){d=0;say('sys','🤏 差一點，沒加分也沒扣分');}
+  else if(s===0){d=20;say('sys','❌ 完全讀錯');S.trust-=5;}
+  else{d=25;say('sys','⏰ 你愣住太久了');S.trust-=5;}
+  cur.alert=Math.max(0,cur.alert+d);if(d)pop(d);hud();
+  setTimeout(()=>{if(cur.alert>=100){bust();say('sys','📵 對方已掛斷');endCall(false);return;}
+    say('sys','🪝 他上鉤了，開始收網');theySay(V[vi].nodes.c1.them,()=>node('c1'));},700);}
+// 最後一關：警覺度越高，越可能自己去查證（意外精明）
+function finalCheck(){
+  const smart=Math.random()*100<15+cur.alert;
+  setTimeout(()=>{if(cur.alert<70&&!smart){say('sys','💰 螢幕另一頭按下了確認……騙到 $'+V[vi].pay.toLocaleString());S.money+=V[vi].pay;hud();
+      $('choices').innerHTML='<button class="btn main" onclick="showOther()">……</button>';}
+    else{bust();say('warn','💥 被害人意外精明');theySay(V[vi].caught,()=>{say('sys','📵 對方已掛斷');endCall(false);});}},800);}
+function showOther(){go('other');const box=$('oLines');box.innerHTML='';$('oBtn').style.opacity=0;
+  C().other[vi].forEach((t,i)=>{const d=document.createElement('div');d.className='line'+(t.startsWith('TRANSFER')?' atm':'');d.textContent=t;box.appendChild(d);
+    setTimeout(()=>d.classList.add('show'),300+i*1400);});
+  setTimeout(()=>$('oBtn').style.opacity=1,300+C().other[vi].length*1400);}
+function backFromOther(){go('play');endCall(true);}
+function endCall(ok){clearInterval(clock);S.results.push({v:V[vi],ok});vi++;
+  const last=vi>=V.length;
+  if(cur.flags.length)say('warn','📋 這通電話裡出現的警訊：<br>・'+cur.flags.join('<br>・'));
+  setTimeout(()=>{say('sys',ok?'幹部在後面點了點頭。':'⚡ 你疑似聽到幹部在後面使用電擊棒……');
+    $('choices').innerHTML='<button class="btn main" onclick="'+(last?'showDebrief()':'callVictim()')+'">'+(last?'下班結算':C().next)+'</button>';},500);}
+/* ===== 下班後：被害人一句一句跟你說 ===== */
+const TALK={
+ 1:{kai:{c:['你剛剛叫我去 ATM 解除分期？','ATM 根本沒有這個功能啦！','叫你去 ATM 處理訂單問題的，一定是詐騙。'],
+         s:['我後來才知道……','ATM 根本沒有「解除分期」這個功能。','那天如果我先掛掉，自己打給蝦子客服就好了。']},
+    mei:{c:['你報得出我的訂單編號，我差點就信了。','可是個資本來就可能外洩，講得出資料，不代表你是真客服。','我自己打開官方 APP，訂單根本沒有異常。'],
+         s:['他連訂單編號都知道，我就以為是真的。','現在我才懂：個資外洩了，誰都講得出來。','有疑問，要自己開官方 APP 查，不是聽電話裡的人講。']},
+    chen:{c:['切成英文介面，再輸入「解除代碼」？','那串數字，就是轉帳金額。','這招我在 165 的宣導看過太多次了。'],
+          s:['我一直以為自己不會被騙。','他叫我切英文、輸入「代碼」的時候，我就該停下來。','那串代碼，就是我被轉走的金額。']}},
+ 2:{kai:{c:['買家說我賣場沒認證，又剛好給我客服 LINE？','我室友說得對，那個客服跟買家根本是同一夥人。','賣東西是我收錢，怎麼會變成我匯錢？'],
+         s:['我只是想賣一雙球鞋。','買家說我沒認證，客服又剛好是他給的……','現在想想，從頭到尾都是同一個人。']},
+    mei:{c:['客服的 LINE，是買家給我的。','真正的客服，要自己從官方 App 找。','別人給你的客服，都不算。'],
+         s:['我懷疑過網址，也問過「你們是官方嗎」。','可是我忘了最重要的一件事：','客服的聯絡方式，是買家給的。']},
+    chen:{c:['實名認證、金流協議、驗證碼？','平台不會叫賣家匯款驗證。','賣東西是你收錢，不是你付錢。'],
+          s:['我嘴上一直說這是詐騙，最後還是按下去了。','因為我想證明自己不會被騙。','記住：賣東西卻要你「先付錢」的，就是詐騙。']}}};
+const NARR={
+ 1:['詐騙最常用三招：安撫你、催你、給你甜頭。','聽到這三種話，先停下來。','來電顯示「+」開頭的，是境外來電。','自稱國內客服、銀行，卻用國外號碼打來，直接掛掉。','不確定的時候，掛掉電話，自己打 165 問。'],
+ 2:['詐騙最常用三招：安撫你、催你、給你甜頭。','賣東西是你收錢。要賣家先匯款、驗證帳戶的，都是詐騙。','客服要自己從官方 App 找，別人給你的都不算。','不確定的時候，打 165 問。']};
+let DB=[],di=0,typing=null,full='';
+function showDebrief(){DB=[];
+  S.results.forEach(r=>{const t=TALK[CH][r.v.key];(r.ok?t.s:t.c).forEach(x=>DB.push({who:r.v.name,tag:r.ok?'被騙了':'識破了你',img:'img/'+r.v.key+(r.ok?1:3)+'.jpg',t:x}));});
+  NARR[CH].forEach(x=>DB.push({who:'旁白',t:x}));
+  di=0;go('debrief');dbShow();}
+function dbShow(){const d=DB[di];
+  $('dbStage').classList.toggle('nar',!d.img);if(d.img)$('dbImg').src=d.img;
+  $('dbName').innerHTML=d.who+(d.tag?' <span>'+d.tag+'</span>':'');$('dbCount').textContent=(di+1)+'／'+DB.length;
+  full=d.t;let i=0;const el=$('dbText');el.textContent='';$('dbMore').style.visibility='hidden';clearInterval(typing);
+  typing=setInterval(()=>{i++;el.textContent=full.slice(0,i);if(i>=full.length){clearInterval(typing);typing=null;$('dbMore').style.visibility='visible';}},55);}
+function dbTap(){if(typing){clearInterval(typing);typing=null;$('dbText').textContent=full;$('dbMore').style.visibility='visible';return;}
+  di++;if(di>=DB.length)showResult();else dbShow();}
+function showResult(){if(!S)startPlay();go('result');
+  const m=S.money,fail=S.results.filter(r=>!r.ok).length;
+  $('rMoney').textContent='$'+m.toLocaleString();$('rDay').textContent='第 '+CH+' 天';$('rTarget').textContent='$'+C().target.toLocaleString();$('rDial').textContent=S.dialed+C().unit;$('rDialL').textContent=C().dialLabel;$('rFail').textContent=fail+' 人';
+  let g,sub,pun;
+  if(m>=C().target){g='A';sub='「不錯嘛，明天名單加倍。」';pun='<b>獎勵：</b>宵夜多一顆滷蛋。薪水？「先幫你存著」。<br>你發現業績越好，越不可能被放走。';}
+  else if(m>=12000){g='C';sub='「普普通通，人還活著。」';pun='<b>懲罰：</b>加班到凌晨兩點，宵夜取消。<br>隔壁阿傑說他來半年，還沒拿過一毛錢。';}
+  else{g='D';sub='「三個人都騙不到，你是來度假的？」';pun='<b>懲罰：</b>被帶去後面「跑步」。<br>回來的時候，你一句話都不想說。';}
+  $('grade').textContent=g;$('gBoss').src='img/boss'+(g==='A'?2:g==='C'?0:1)+'.jpg';$('pnHero').src='img/hero'+(g==='A'?2:3)+'.jpg';$('gradeSub').textContent=sub;$('punish').innerHTML=pun;
+  $('lessons').innerHTML=S.results.map(r=>'<li>'+(r.ok?'<b>'+r.v.name+'</b> 被騙了，因為沒想到：':'<b>'+r.v.name+'</b> 識破了你：')+r.v.lesson+'</li>').join('')
+    +C().extra.join('');}
+</script>
+</body>
